@@ -13,12 +13,12 @@ enum State
 {
 	EXPECTING_A,
 	EXPECTING_B,
-	PLAN_PATH
+	PLAN_PATH,
+	COMPLETE
 };
 
 void readInTiles(string fileName);
 Tile createTriangle(int x, int y, TriangleType type);
-void planPath(int pointA, int pointB);
 
 const float _SPACE_BETWEEN_TRIANGLES_X = 70;
 const float _SPACE_BETWEEN_TRIANGLES_Y = 70;
@@ -158,11 +158,6 @@ Tile createTriangle(int x, int y, TriangleType type)
 	return tile;
 }
 
-void planPath(int pointA, int pointB)
-{
-
-}
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// create the window
@@ -191,6 +186,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		axis[i].setPosition(sf::Vector2f(0, (x * _SPACE_BETWEEN_TRIANGLES_Y) + _Y_AXIS_OFFSET + (_SPACE_BETWEEN_TRIANGLES_Y * .3f)));
 	}
 
+
+	PathPlanner* pathPlanner = NULL;
+
 	// run the program as long as the window is open
 	while (window.isOpen())
 	{
@@ -203,6 +201,14 @@ int _tmain(int argc, _TCHAR* argv[])
 				window.close();
 		}
 
+		if (pathPlanner != NULL)
+		{
+			if (pathPlanner->step())
+			{
+				delete pathPlanner;
+				pathPlanner = NULL;
+			}
+		}
 
 		// clear the window with black color
 		window.clear(sf::Color::Black);
@@ -242,6 +248,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		switch (currentState)
 		{
+		case State::COMPLETE:
+			break;
 		case State::EXPECTING_A:
 			char aChar;
 			int aNum;
@@ -267,9 +275,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			currentState = State::PLAN_PATH;
 			break;
 		case State::PLAN_PATH:
-			planPath(aTile, bTile);
-			break;
-		default:
+			pathPlanner = new PathPlanner(tileGrid, tileGridSizeX, tileGridSizeY, aTile, bTile);
+			currentState = State::COMPLETE;
 			break;
 		}
 	}
