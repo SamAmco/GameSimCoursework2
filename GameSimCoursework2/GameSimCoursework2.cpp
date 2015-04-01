@@ -5,31 +5,36 @@
 #include <iostream>
 #include <sstream>
 #include <SFML/Graphics.hpp>
+#include "PathPlanner.h"
 
 using namespace std;
 
-
-enum TriangleType
+enum State
 {
-	R, L, H, F, M
+	EXPECTING_A,
+	EXPECTING_B,
+	PLAN_PATH
 };
 
-struct Tile
-{
-	TriangleType type;
-	sf::ConvexShape triangle;
-	sf::Text text;
-};
-
+void readInTiles(string fileName);
 Tile createTriangle(int x, int y, TriangleType type);
+void planPath(int pointA, int pointB);
 
 const float _SPACE_BETWEEN_TRIANGLES_X = 70;
 const float _SPACE_BETWEEN_TRIANGLES_Y = 70;
+const float _X_AXIS_OFFSET = 30;
+const float _Y_AXIS_OFFSET = 35;
 
 sf::Font font;
 
+State currentState;
+int aTile = -1;
+int bTile = -1;
 Tile* tileGrid;
-int tileGridSize;
+sf::Text* axis;
+int tileGridSizeX;
+int tileGridSizeY;
+
 
 void readInTiles(string fileName)
 {
@@ -41,11 +46,10 @@ void readInTiles(string fileName)
 		return;
 	}
 
-	int maxWidth;
-	int maxHeight;
-	fscanf_s(file, "%i,%i\n", &maxWidth, &maxHeight);
+	
+	fscanf_s(file, "%i,%i\n", &tileGridSizeX, &tileGridSizeY);
 
-	tileGridSize = maxHeight * maxWidth;
+	int tileGridSize = tileGridSizeX * tileGridSizeY;
 	tileGrid = new Tile[tileGridSize];
 
 
@@ -87,7 +91,6 @@ void readInTiles(string fileName)
 	}
 }
 
-
 Tile createTriangle(int x, int y, TriangleType type)
 {
 
@@ -97,8 +100,8 @@ Tile createTriangle(int x, int y, TriangleType type)
 	// resize it to 5 points
 	triangle.setPointCount(3);
 
-	float xPos = x * (_SPACE_BETWEEN_TRIANGLES_X / 2.f);
-	float yPos = y * _SPACE_BETWEEN_TRIANGLES_Y;
+	float xPos = _X_AXIS_OFFSET +  (x * (_SPACE_BETWEEN_TRIANGLES_X / 2.f));
+	float yPos = _Y_AXIS_OFFSET + (y * _SPACE_BETWEEN_TRIANGLES_Y);
 
 	// define the points
 	if ((x + y) % 2 == 0)
@@ -126,7 +129,7 @@ Tile createTriangle(int x, int y, TriangleType type)
 		triangle.setFillColor(sf::Color::White);
 		break;
 	case TriangleType::L:
-		triangle.setFillColor(sf::Color::Blue);
+		triangle.setFillColor(sf::Color(0,170,200));
 		break;
 	case TriangleType::R:
 		triangle.setFillColor(sf::Color(50,50,50));
@@ -140,7 +143,7 @@ Tile createTriangle(int x, int y, TriangleType type)
 	stringstream s;
 	s << x << ", " << y;
 	sf::Text text = sf::Text(s.str(), font, 16);
-	text.setColor(sf::Color::Red);
+	text.setColor(sf::Color::Black);
 	if ((x + y) % 2 == 0)
 		text.setPosition(sf::Vector2f(xPos + (_SPACE_BETWEEN_TRIANGLES_X * .25f), yPos + (_SPACE_BETWEEN_TRIANGLES_Y * .15f)));
 	else
@@ -155,18 +158,39 @@ Tile createTriangle(int x, int y, TriangleType type)
 	return tile;
 }
 
+void planPath(int pointA, int pointB)
+{
+
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// create the window
 	sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
-
 	if (!font.loadFromFile("arial.ttf"))
 	{
 		return -1;
 	}
+	currentState = State::EXPECTING_A;
 
 	readInTiles("TileData.txt");
-	
+	axis = new sf::Text[tileGridSizeX + tileGridSizeY];
+	for (int i = 0; i < tileGridSizeX; ++i)
+	{
+		axis[i] = sf::Text((char)(i + 97), font, 16);
+		axis[i].setColor(sf::Color::White);
+		axis[i].setPosition(sf::Vector2f((i * _SPACE_BETWEEN_TRIANGLES_X * .5f) + _X_AXIS_OFFSET + (_SPACE_BETWEEN_TRIANGLES_X * .4f), 0));
+	}
+	for (int i = tileGridSizeX; i < tileGridSizeX + tileGridSizeY; ++i)
+	{
+		stringstream s;
+		int x = i - tileGridSizeX;
+		s << x + 1;
+		axis[i] = sf::Text(s.str(), font, 16);
+		axis[i].setColor(sf::Color::White);
+		axis[i].setPosition(sf::Vector2f(0, (x * _SPACE_BETWEEN_TRIANGLES_Y) + _Y_AXIS_OFFSET + (_SPACE_BETWEEN_TRIANGLES_Y * .3f)));
+	}
+
 	// run the program as long as the window is open
 	while (window.isOpen())
 	{
@@ -179,22 +203,79 @@ int _tmain(int argc, _TCHAR* argv[])
 				window.close();
 		}
 
+
 		// clear the window with black color
 		window.clear(sf::Color::Black);
 
 		// draw everything here...
-		for (int i = 0; i < tileGridSize; i++)
+		for (int i = 0; i < tileGridSizeX + tileGridSizeY; ++i)
 		{
+			if (i == aTile || i == bTile)
+				continue;
+			window.draw(axis[i]);
+		}
+		for (int i = 0; i < tileGridSizeX * tileGridSizeY; ++i)
+		{		
+			if (i == aTile || i == bTile)
+				continue;
 			window.draw(tileGrid[i].triangle);
 		}
-		for (int i = 0; i < tileGridSize; i++)
+		for (int i = 0; i < tileGridSizeX * tileGridSizeY; ++i)
 		{
+			if (i == aTile)
+				continue;
 			window.draw(tileGrid[i].text);
+		}
+		if (aTile != -1)
+		{
+			window.draw(tileGrid[aTile].triangle);
+			window.draw(tileGrid[aTile].text);
+		}
+		if (bTile != -1)
+		{
+			window.draw(tileGrid[bTile].triangle);
+			window.draw(tileGrid[bTile].text);
 		}
 
 		// end the current frame
 		window.display();
+
+		switch (currentState)
+		{
+		case State::EXPECTING_A:
+			char aChar;
+			int aNum;
+			cout << "Please enter a start point letter: " << endl;
+			cin >> aChar;
+			cout << "Please enter a start point number: " << endl;
+			cin >> aNum;
+			aTile = ((aNum - 1) * tileGridSizeX) + (aChar - 97);
+			tileGrid[aTile].triangle.setOutlineThickness(3);
+			tileGrid[aTile].triangle.setOutlineColor(sf::Color::Red);
+			currentState = State::EXPECTING_B;
+			break;
+		case State::EXPECTING_B:
+			char bChar;
+			int bNum;
+			cout << "Please enter an end point letter: " << endl;
+			cin >> bChar;
+			cout << "Please enter an end point number: " << endl;
+			cin >> bNum;
+			bTile = ((bNum - 1) * tileGridSizeX) + (bChar - 97);
+			tileGrid[bTile].triangle.setOutlineThickness(3);
+			tileGrid[bTile].triangle.setOutlineColor(sf::Color::Red);
+			currentState = State::PLAN_PATH;
+			break;
+		case State::PLAN_PATH:
+			planPath(aTile, bTile);
+			break;
+		default:
+			break;
+		}
 	}
+
+	delete[] tileGrid;
+	delete[] axis;
 
 	return 0;
 }
