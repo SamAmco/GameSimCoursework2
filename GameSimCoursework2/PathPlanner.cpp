@@ -17,6 +17,8 @@ PathPlanner::PathPlanner(Tile* tileGrid, tgui::ChatBox::Ptr& outBox, int tileGri
 	closedList = vector<Point*>();
 	openList = vector<Point*>();
 	openList.push_back(startPoint);
+	deleteList.push_back(startPoint);
+	deleteList.push_back(endPoint);
 };
 
 bool PathPlanner::isPointInList(vector<Point*> list, int x, int y)
@@ -56,6 +58,7 @@ Point* PathPlanner::getPoint(int x, int y, Point* parent)
 		return NULL;
 
 	Point* point = new Point();
+	deleteList.push_back(point);
 	point->x = x;
 	point->y = y;
 	point->parent = parent;
@@ -161,7 +164,7 @@ bool PathPlanner::step()
 			index = i;
 		}
 	}
-	currentPoint = openList[index];
+	Point* currentPoint = openList[index];
 	openList.erase(openList.begin() + index);
 
 	if (getTileAtPoint(*currentPoint)->type != TriangleType::L)
@@ -193,13 +196,8 @@ bool PathPlanner::step()
 		{
 			int newG = calculateG(p);
 
-			if (openList[openListIndex]->G < newG)
-				delete p;
-			else
-			{
-				delete openList[openListIndex];
+			if (openList[openListIndex]->G > newG)
 				openList[openListIndex] = p;
-			}
 		}
 		else
 			openList.push_back(p);
@@ -210,10 +208,6 @@ bool PathPlanner::step()
 
 PathPlanner::~PathPlanner()
 {
-	for (int i = 0; i < openList.size(); ++i)
-		delete openList[i];
-	for (int i = 0; i < closedList.size(); ++i)
-		delete closedList[i];
-
-	delete endPoint;
+	for (int i = 0; i < deleteList.size(); ++i)
+		delete deleteList[i];
 }

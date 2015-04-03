@@ -1,4 +1,4 @@
-﻿Build started 03/04/2015 03:24:01.
+﻿Build started 03/04/2015 20:59:32.
      1>Project "C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\GameSimCoursework2\GameSimCoursework2.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\SamAmco\Documents\Visual Studio 2013\TGUI-0.6\include" /I"C:\Users\SamAmco\Documents\Visual Studio 2013\SFML-2.2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D SFML_STATIC /D WIN32 /D _DEBUG /D _LIB /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\GameSimCoursework2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt PathPlanner.cpp
@@ -17,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.54
+Time Elapsed 00:00:02.33

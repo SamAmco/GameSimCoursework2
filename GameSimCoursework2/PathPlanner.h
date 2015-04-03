@@ -53,8 +53,8 @@ private:
 	int tileGridSizeX;
 	int tileGridSizeY;
 	Point* endPoint;
-	Point* currentPoint;
 	vector<Point*> openList;
 	vector<Point*> closedList;
+	vector<Point*> deleteList;
 };
 
