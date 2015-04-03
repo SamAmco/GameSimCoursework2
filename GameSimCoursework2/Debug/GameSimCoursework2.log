@@ -1,13 +1,15 @@
-﻿Build started 01/04/2015 21:27:04.
+﻿Build started 03/04/2015 03:24:01.
      1>Project "C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\GameSimCoursework2\GameSimCoursework2.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\SamAmco\Documents\Visual Studio 2013\SFML-2.2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D SFML_STATIC /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\GameSimCoursework2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt PathPlanner.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"C:\Users\SamAmco\Documents\Visual Studio 2013\TGUI-0.6\include" /I"C:\Users\SamAmco\Documents\Visual Studio 2013\SFML-2.2\include" /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D SFML_STATIC /D WIN32 /D _DEBUG /D _LIB /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\GameSimCoursework2.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt PathPlanner.cpp
          PathPlanner.cpp
-     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(131): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(181): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(183): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(34): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(156): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(188): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(213): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\samamco\documents\visual studio 2013\projects\gamesimcoursework2\gamesimcoursework2\pathplanner.cpp(215): warning C4018: '<' : signed/unsigned mismatch
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\SamAmco\Documents\Visual Studio 2013\SFML-2.2\lib" opengl32.lib winmm.lib gdi32.lib sndfile.lib openal32.lib glew.lib freetype.lib jpeg.lib "sfml-system-s-d.lib" "sfml-audio-s-d.lib" "sfml-window-s-d.lib" "sfml-graphics-s-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.lib" /MACHINE:X86 Debug\GameSimCoursework2.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Users\SamAmco\Documents\Visual Studio 2013\TGUI-0.6\lib" /LIBPATH:"C:\Users\SamAmco\Documents\Visual Studio 2013\SFML-2.2\lib" opengl32.lib glew.lib winmm.lib gdi32.lib sndfile.lib freetype.lib openal32.lib jpeg.lib "sfml-system-s-d.lib" "sfml-audio-s-d.lib" "sfml-window-s-d.lib" "sfml-graphics-s-d.lib" "tgui-s-d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.lib" /MACHINE:X86 Debug\GameSimCoursework2.obj
          Debug\PathPlanner.obj
          Debug\stdafx.obj
          GameSimCoursework2.vcxproj -> C:\Users\SamAmco\Documents\Visual Studio 2013\Projects\GameSimCoursework2\Debug\GameSimCoursework2.exe
@@ -15,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.88
+Time Elapsed 00:00:02.54

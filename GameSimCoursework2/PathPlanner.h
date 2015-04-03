@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 #include <iostream>
 #include <vector>
 #include <limits>
@@ -32,7 +33,7 @@ using namespace std;
 class PathPlanner
 {
 public:
-	PathPlanner(Tile* tileGrid, int tileGridSizeX,
+	PathPlanner(Tile* tileGrid, tgui::ChatBox::Ptr& outBox, int tileGridSizeX,
 		int tileGridSizeY, int aTile, int bTile);
 
 	bool step();
@@ -43,10 +44,12 @@ private:
 	vector<Point*> findReachablePoints(Point* p);
 	Point* getPoint(int x, int y, Point* parent);
 	bool isPointInList(vector<Point*> list, int x, int y);
+	int getPointInList(vector<Point*> list, int x, int y);
 	Tile* getTileAtPoint(Point p);
 	int calculateG(Point* p);
 
 	Tile* tileGrid;
+	tgui::ChatBox::Ptr& outBox;
 	int tileGridSizeX;
 	int tileGridSizeY;
 	Point* endPoint;

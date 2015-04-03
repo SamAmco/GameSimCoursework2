@@ -2,9 +2,9 @@
 #include "PathPlanner.h"
 
 
-PathPlanner::PathPlanner(Tile* tileGrid, int tileGridSizeX,
+PathPlanner::PathPlanner(Tile* tileGrid, tgui::ChatBox::Ptr& outBox, int tileGridSizeX,
 	int tileGridSizeY, int aTile, int bTile)
-	: tileGrid(tileGrid), tileGridSizeX(tileGridSizeX), tileGridSizeY(tileGridSizeY)
+	: tileGrid(tileGrid), outBox(outBox), tileGridSizeX(tileGridSizeX), tileGridSizeY(tileGridSizeY)
 {
 	Point* startPoint = new Point();
 	startPoint->y = aTile / tileGridSizeX;
@@ -19,7 +19,6 @@ PathPlanner::PathPlanner(Tile* tileGrid, int tileGridSizeX,
 	openList.push_back(startPoint);
 };
 
-
 bool PathPlanner::isPointInList(vector<Point*> list, int x, int y)
 {
 	for (auto point : list)
@@ -30,9 +29,29 @@ bool PathPlanner::isPointInList(vector<Point*> list, int x, int y)
 	return false;
 }
 
+int PathPlanner::getPointInList(vector<Point*> list, int x, int y)
+{
+	for (int i = 0; i < list.size(); ++i)
+	{
+		if (list[i]->x == x && list[i]->y == y)
+			return i;
+	}
+	return -1;
+}
+
 Point* PathPlanner::getPoint(int x, int y, Point* parent)
 {
-	int cost = _TILE_COSTS[(int)(tileGrid[(y * tileGridSizeX) + x].type)];
+	TriangleType type = tileGrid[(y * tileGridSizeX) + x].type;
+	if (type == TriangleType::L && parent->parent != NULL)
+	{
+		TriangleType parent1Type = tileGrid[(parent->y * tileGridSizeX) + parent->x].type;
+		TriangleType parent2Type = tileGrid[(parent->parent->y * tileGridSizeX) + parent->parent->x].type;
+
+		if (parent1Type == TriangleType::L && parent2Type == TriangleType::L)
+			return NULL;
+	}
+
+	int cost = _TILE_COSTS[(int)type];
 	if (cost == -1)
 		return NULL;
 
@@ -44,7 +63,10 @@ Point* PathPlanner::getPoint(int x, int y, Point* parent)
 
 	int distY = abs(endPoint->y - y);
 	int distX = abs(endPoint->x - x);
-	int H = ((distY - distX) * 3) + distX + (distY - (distY - distX));
+
+	int yNotInX = ((distY - distX)+1) / 2;
+	yNotInX = yNotInX < 0 ? 0 : yNotInX;
+	int H = (yNotInX * 3) + distX + (distY - yNotInX);
 
 
 	int G = calculateG(point);
@@ -124,7 +146,10 @@ int PathPlanner::calculateG(Point* p)
 bool PathPlanner::step()
 {
 	if (openList.size() < 1)
+	{
+		outBox->addLine("No path could be found", sf::Color::White);
 		return true;
+	}
 
 	int lowestF = numeric_limits<int>::max();
 	int index = 0;
@@ -138,13 +163,18 @@ bool PathPlanner::step()
 	}
 	currentPoint = openList[index];
 	openList.erase(openList.begin() + index);
-	closedList.push_back(currentPoint);
+
+	if (getTileAtPoint(*currentPoint)->type != TriangleType::L)
+		closedList.push_back(currentPoint);
+
 
 	getTileAtPoint(*currentPoint)->triangle.setFillColor(sf::Color::Blue);
 
 	if (currentPoint->x == endPoint->x && currentPoint->y == endPoint->y)
 	{
-		cout << currentPoint->G;
+		stringstream s;
+		s << "Path found with distance " << currentPoint->G;
+		outBox->addLine(s.str(), sf::Color::White);
 		while (currentPoint != NULL)
 		{
 			getTileAtPoint(*currentPoint)->triangle.setFillColor(sf::Color::Magenta);
@@ -155,18 +185,21 @@ bool PathPlanner::step()
 	}
 
 	vector<Point*> availablePoints = findReachablePoints(currentPoint);
-	for (auto p : availablePoints)
+	for (int i = 0; i < availablePoints.size(); ++i)
 	{
-		if (isPointInList(openList, p->x, p->y))
+		Point* p = availablePoints[i];
+		int openListIndex = getPointInList(openList, p->x, p->y);
+		if (openListIndex != -1)
 		{
-			Point* temp = p->parent;
-			p->parent = currentPoint;
 			int newG = calculateG(p);
 
-			if (p->G < newG)
-				p->parent = temp;
+			if (openList[openListIndex]->G < newG)
+				delete p;
 			else
-				p->G = newG;
+			{
+				delete openList[openListIndex];
+				openList[openListIndex] = p;
+			}
 		}
 		else
 			openList.push_back(p);
@@ -174,7 +207,6 @@ bool PathPlanner::step()
 
 	return false;
 }
-
 
 PathPlanner::~PathPlanner()
 {
