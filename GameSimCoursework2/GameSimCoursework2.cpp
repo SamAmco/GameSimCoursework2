@@ -12,28 +12,38 @@
 
 using namespace std;
 
+//all functions in this class are forward declared here
 void readInTiles(string fileName);
 Tile createTriangle(int x, int y, TriangleType type);
 void loadGUI(tgui::Gui& gui);
 int clamp(int x, int max, int min);
 void setTriangleColor(sf::ConvexShape& triangle, TriangleType type);
 
+//variables for displaying tiles in the gui
 const float _SPACE_BETWEEN_TRIANGLES_X = 70;
 const float _SPACE_BETWEEN_TRIANGLES_Y = 70;
 const float _X_AXIS_OFFSET = 30;
 const float _Y_AXIS_OFFSET = 35;
 
+//only using one font for all text
 sf::Font font;
 
+//the positions in the tile grid array of the start and end points
 int aTile = -1;
 int bTile = -1;
+//the array of tiles read in from the text file
 Tile* tileGrid;
+//the axis displayed
 sf::Text* axis;
+//these values are set when the tile grid is read in
 int tileGridSizeX;
 int tileGridSizeY;
+
+//we need to store these buttons so that we can edit them or read their values later
 tgui::Button::Ptr submitButton;
 tgui::Tab::Ptr typeTab;
 tgui::ChatBox::Ptr outBox;
+
 
 int clamp(int x, int max, int min)
 {
@@ -44,6 +54,7 @@ int clamp(int x, int max, int min)
 	return x;
 }
 
+//set the colour of a triangular tile based on its type
 void setTriangleColor(sf::ConvexShape& triangle, TriangleType type)
 {
 	switch (type)
@@ -66,10 +77,13 @@ void setTriangleColor(sf::ConvexShape& triangle, TriangleType type)
 	default:
 		break;
 	}
+	//in some cases after setting the colour we change the outline, e.g. start and end tiles. 
+	//This always needs to be set back
 	triangle.setOutlineThickness(1);
 	triangle.setOutlineColor(sf::Color::Black);
 }
 
+//read a text file in and populate the tileGrid
 void readInTiles(string fileName)
 {
 	FILE* file;
@@ -80,12 +94,11 @@ void readInTiles(string fileName)
 		return;
 	}
 
-	
+	//the first line of the file contains the x and y sizes of the grid.
 	fscanf_s(file, "%i,%i\n", &tileGridSizeX, &tileGridSizeY);
 
 	int tileGridSize = tileGridSizeX * tileGridSizeY;
 	tileGrid = new Tile[tileGridSize];
-
 
 	//Loop through the lines
 	for (int i = 0; i < tileGridSize; ++i)
@@ -98,7 +111,7 @@ void readInTiles(string fileName)
 		if (res == EOF)
 			break;
 
-		//R, L, H, F, M
+		//Create a triangle of the type read in.
 		TriangleType type;
 		switch (t)
 		{
@@ -125,13 +138,12 @@ void readInTiles(string fileName)
 	}
 }
 
+//create a triangle graphic in sfml and return it along with it's type in a Tile object
 Tile createTriangle(int x, int y, TriangleType type)
 {
-
-	float radius = _SPACE_BETWEEN_TRIANGLES_Y / 2.f;
-
+	//create a convex shape	
 	sf::ConvexShape triangle;
-	// resize it to 5 points
+	//resize it to 3 points
 	triangle.setPointCount(3);
 
 	float xPos = _X_AXIS_OFFSET +  (x * (_SPACE_BETWEEN_TRIANGLES_X / 2.f));
@@ -153,6 +165,7 @@ Tile createTriangle(int x, int y, TriangleType type)
 
 	setTriangleColor(triangle, type);
 
+	//set the text in the triangle
 	stringstream s;
 	s << (char)(x + 97) << ", " << y + 1;
 	sf::Text text = sf::Text(s.str(), font, 16);
@@ -173,16 +186,21 @@ Tile createTriangle(int x, int y, TriangleType type)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	// create the window
+	// create the window and gui
 	sf::RenderWindow window(sf::VideoMode(800, 800), "My window");
 	tgui::Gui gui(window);
+	
+	//load and set the font
 	if (!font.loadFromFile("arial.ttf"))
 	{
 		return EXIT_FAILURE;
 	}
 	gui.setGlobalFont(font);
 
+	//read in the tile data file
 	readInTiles("TileData.txt");
+
+	//set the x axis text
 	axis = new sf::Text[tileGridSizeX + tileGridSizeY];
 	for (int i = 0; i < tileGridSizeX; ++i)
 	{
@@ -190,6 +208,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		axis[i].setColor(sf::Color::White);
 		axis[i].setPosition(sf::Vector2f((i * _SPACE_BETWEEN_TRIANGLES_X * .5f) + _X_AXIS_OFFSET + (_SPACE_BETWEEN_TRIANGLES_X * .4f), 0));
 	}
+
+	//set the y axis text
 	for (int i = tileGridSizeX; i < tileGridSizeX + tileGridSizeY; ++i)
 	{
 		stringstream s;
@@ -201,7 +221,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	loadGUI(gui);
-
 	PathPlanner* pathPlanner = NULL;
 
 	// run the program as long as the window is open
@@ -218,6 +237,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			gui.handleEvent(event);
 		}
 
+		//if we are currently planning a path, then step through the algorithm
 		if (pathPlanner != NULL)
 		{
 			if (pathPlanner->step())
@@ -226,14 +246,19 @@ int _tmain(int argc, _TCHAR* argv[])
 				pathPlanner = NULL;
 			}
 		}
+		//otherwise respond to gui input
 		else
 		{
 			// The callback loop
 			tgui::Callback callback;
 			while (gui.pollCallback(callback))
 			{
+				//if there is a gui event, check the id of the gui element
 				if (callback.id == 1)
 				{
+					//submit button was clicked
+
+					//find the aTile and bTile in tileGrid
 					tgui::EditBox::Ptr startXBox = gui.get("startX");
 					tgui::EditBox::Ptr startYBox = gui.get("startY");
 					int startX = clamp((int)((string)startXBox->getText())[0] - 97, tileGridSizeX - 1, 0);
@@ -247,17 +272,24 @@ int _tmain(int argc, _TCHAR* argv[])
 					aTile = (startY * tileGridSizeX) + startX;
 					bTile = (endY * tileGridSizeX) + endX;
 					
+					//Set the gui to reflect the tiles selected
 					tileGrid[aTile].triangle.setOutlineThickness(3);
 					tileGrid[aTile].triangle.setOutlineColor(sf::Color::Red);
 					tileGrid[bTile].triangle.setOutlineThickness(3);
 					tileGrid[bTile].triangle.setOutlineColor(sf::Color::Red);
 					
+					//begin the path planner
 					pathPlanner = new PathPlanner(tileGrid, outBox, tileGridSizeX, tileGridSizeY, aTile, bTile);
+					
+					//the user must reset the tile grid before they can submit a new path
 					submitButton->disable();
 					submitButton->hide();
 				}
 				if (callback.id == 2)
 				{
+					//the reset button was clicked
+
+					//reset all tile graphics and re-enable the submit button
 					for (int i = 0; i < tileGridSizeX * tileGridSizeY; ++i)
 					{
 						setTriangleColor(tileGrid[i].triangle, tileGrid[i].type);
@@ -267,6 +299,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 				if (callback.id == 3)
 				{
+					//the change tile button was clicked
 					tgui::EditBox::Ptr startXBox = gui.get("tileX");
 					tgui::EditBox::Ptr startYBox = gui.get("tileY");
 					int tileX = clamp((int)((string)startXBox->getText())[0] - 97, tileGridSizeX - 1, 0);
@@ -284,25 +317,28 @@ int _tmain(int argc, _TCHAR* argv[])
 		// clear the window with black color
 		window.clear(sf::Color::Black);
 
-		// draw everything here...
+		// draw the axis
 		for (int i = 0; i < tileGridSizeX + tileGridSizeY; ++i)
 		{
 			if (i == aTile || i == bTile)
 				continue;
 			window.draw(axis[i]);
 		}
+		//draw all tiles except aTile and bTile
 		for (int i = 0; i < tileGridSizeX * tileGridSizeY; ++i)
 		{		
 			if (i == aTile || i == bTile)
 				continue;
 			window.draw(tileGrid[i].triangle);
 		}
+		//draw the text for all tiles except aTile and bTile
 		for (int i = 0; i < tileGridSizeX * tileGridSizeY; ++i)
 		{
-			if (i == aTile)
+			if (i == aTile || i == bTile)
 				continue;
 			window.draw(tileGrid[i].text);
 		}
+		//draw aTile and bTile over the top because they have thicker outlines that must overlay the surrounding tiles.
 		if (aTile != -1)
 		{
 			window.draw(tileGrid[aTile].triangle);
@@ -322,20 +358,23 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	delete[] tileGrid;
 	delete[] axis;
+	if (pathPlanner != NULL)
+		delete pathPlanner;
 
 	return EXIT_SUCCESS;
 }
 
+//initialize the gui elements
 void loadGUI(tgui::Gui& gui)
 {
-
+	//the output box that gives information about the path finding algorithm
 	outBox = tgui::ChatBox::Ptr(gui);
 	outBox->load("widgets/Black.conf");
 	outBox->setSize(540, 180);
 	outBox->setTextSize(20);
 	outBox->setPosition(5, 605);
-	//outBox->addLine("Line 6" + 5, sf::Color::White);
 
+	//these values can be changed to move the start, end and submit elements of the interface
 	int changeStartEndAnchorX = 550;
 	int changeStartEndAnchorY = 605;
 
@@ -399,7 +438,7 @@ void loadGUI(tgui::Gui& gui)
 	button->setCallbackId(2);
 
 
-
+	//these values can be changed to move the change tile elements of the interface
 	int changeTileAnchorX = 550;
 	int changeTileAnchorY = 705;
 
